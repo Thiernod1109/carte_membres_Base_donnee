@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Confirmation d'Inscription</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Association des Anciens Eleves</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Inscription</a></li>
+                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="confirmation-container">
+            <h2>Inscription Reussie!</h2>
+
+            <div class="member-info">
+                <h3>Informations du Membre</h3>
+                <p><strong>Numero de Membre:</strong> {{ membre.numero_membre }}</p>
+                <p><strong>Nom:</strong> {{ membre.prenom }} {{ membre.nom }}</p>
+                {% if membre.promotion %}
+                <p><strong>Promotion:</strong> {{ membre.promotion }}</p>
+                {% endif %}
+                {% if membre.email %}
+                <p><strong>Email:</strong> {{ membre.email }}</p>
+                {% endif %}
+                {% if membre.telephone %}
+                <p><strong>Telephone:</strong> {{ membre.telephone }}</p>
+                {% endif %}
+                <p><strong>Date d'inscription:</strong> {{ membre.date_inscription }}</p>
+            </div>
+
+            <h3>Votre Carte de Membre</h3>
+
+            {% if membre.carte_path %}
+            <img src="{{ url_for('static', filename='../' + membre.carte_path) }}" alt="Carte de membre" class="card-preview">
+
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">
+                    Telecharger la Carte
+                </a>
+            </div>
+            {% else %}
+            <p>La carte sera disponible prochainement.</p>
+            {% endif %}
+
+            <div style="margin-top: 30px;">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    Nouvelle Inscription
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

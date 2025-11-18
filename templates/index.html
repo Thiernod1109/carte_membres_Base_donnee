@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Inscription Membre</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Association des Anciens Eleves</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Inscription</a></li>
+                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <h2>Formulaire d'Inscription</h2>
+
+            <form id="inscription-form" action="{{ url_for('inscription') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" name="nom" required placeholder="Votre nom de famille">
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom">Prenom *</label>
+                        <input type="text" id="prenom" name="prenom" required placeholder="Votre prenom">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date_naissance">Date de Naissance</label>
+                        <input type="date" id="date_naissance" name="date_naissance">
+                    </div>
+                    <div class="form-group">
+                        <label for="promotion">Annee de Promotion</label>
+                        <input type="text" id="promotion" name="promotion" placeholder="Ex: 2010">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="votre@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Telephone</label>
+                        <input type="tel" id="telephone" name="telephone" placeholder="+221 77 123 45 67">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adresse">Adresse</label>
+                    <textarea id="adresse" name="adresse" placeholder="Votre adresse complete"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Photo d'Identite</label>
+                    <div class="photo-upload">
+                        <input type="file" id="photo" name="photo" accept="image/*">
+                        <p>Cliquez pour selectionner une photo</p>
+                        <small>Formats acceptes: JPG, PNG, GIF (max 16MB)</small>
+                        <img id="photo-preview" class="photo-preview" style="display: none;" alt="Apercu">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    S'inscrire et Generer la Carte
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

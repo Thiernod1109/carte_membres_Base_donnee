@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Detail du Membre</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Association des Anciens Eleves</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Inscription</a></li>
+                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+            </ul>
+        </nav>
+
+        <div class="confirmation-container">
+            <h2>Detail du Membre</h2>
+
+            <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; justify-content: center;">
+                <div style="flex: 0 0 200px;">
+                    {% if membre.photo_path %}
+                    <img src="{{ url_for('static', filename='../' + membre.photo_path) }}" alt="Photo" style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                    {% else %}
+                    <div style="width: 200px; height: 200px; background: #e0e0e0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #999; font-size: 3em;">?</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="member-info" style="flex: 1; min-width: 300px;">
+                    <h3>{{ membre.prenom }} {{ membre.nom }}</h3>
+                    <p><strong>Numero de Membre:</strong> {{ membre.numero_membre }}</p>
+                    {% if membre.date_naissance %}
+                    <p><strong>Date de Naissance:</strong> {{ membre.date_naissance }}</p>
+                    {% endif %}
+                    {% if membre.promotion %}
+                    <p><strong>Promotion:</strong> {{ membre.promotion }}</p>
+                    {% endif %}
+                    {% if membre.email %}
+                    <p><strong>Email:</strong> {{ membre.email }}</p>
+                    {% endif %}
+                    {% if membre.telephone %}
+                    <p><strong>Telephone:</strong> {{ membre.telephone }}</p>
+                    {% endif %}
+                    {% if membre.adresse %}
+                    <p><strong>Adresse:</strong> {{ membre.adresse }}</p>
+                    {% endif %}
+                    <p><strong>Date d'inscription:</strong> {{ membre.date_inscription }}</p>
+                </div>
+            </div>
+
+            {% if membre.carte_path %}
+            <h3 style="margin-top: 30px;">Carte de Membre</h3>
+            <img src="{{ url_for('static', filename='../' + membre.carte_path) }}" alt="Carte de membre" class="card-preview">
+
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">
+                    Telecharger la Carte
+                </a>
+            </div>
+            {% endif %}
+
+            <div style="margin-top: 30px;">
+                <a href="{{ url_for('liste_membres') }}" class="btn btn-primary">
+                    Retour a la Liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
