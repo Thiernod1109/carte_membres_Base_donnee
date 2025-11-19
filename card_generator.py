@@ -1,121 +1,152 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-def create_member_card(membre_data, output_path):
+
+def create_modern_member_card(membre_data, output_path):
     """
-    Créer une carte de membre pour l'association ALUBILLES
+    Créer une carte de membre moderne ALUBILLES avec design géométrique
 
     Args:
         membre_data: dict avec les infos du membre
         output_path: chemin où sauvegarder la carte
     """
 
-    # Dimensions de la carte (format carte de crédit en pixels, 300 DPI)
-    card_width = 1011  # 85.6mm
-    card_height = 638  # 54mm
+    # Dimensions verticales (format portrait - ID card standard)
+    card_width = 630  # 3.5 pouces (88.9mm)
+    card_height = 1000  # 5.5 pouces (139.7mm)
 
     # Créer l'image de base
     card = Image.new('RGB', (card_width, card_height), color='#FFFFFF')
     draw = ImageDraw.Draw(card)
 
-    # Couleurs ALUBILLES
-    primary_color = '#1E3A5F'  # Bleu foncé
-    secondary_color = '#C9A227'  # Or
-    text_color = '#333333'
+    # Couleurs
+    primary_blue = '#1E5BA8'  # Bleu foncé
+    light_gray = '#E0E0E0'
+    text_color = '#000000'
+    white = '#FFFFFF'
 
-    # Dessiner l'en-tête
-    draw.rectangle([0, 0, card_width, 120], fill=primary_color)
-
-    # Charger les polices (utiliser les polices par défaut si non disponibles)
+    # Charger les polices
     try:
-        font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 42)
-        font_subtitle = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18)
-        font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 28)
-        font_info = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 16)
-        font_number = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
+        font_company = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+        font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 40)
+        font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 16)
+        font_label = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
+        font_info = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
     except Exception:
-        font_title = ImageFont.load_default()
-        font_subtitle = ImageFont.load_default()
+        font_company = ImageFont.load_default()
         font_name = ImageFont.load_default()
+        font_title = ImageFont.load_default()
+        font_label = ImageFont.load_default()
         font_info = ImageFont.load_default()
-        font_number = ImageFont.load_default()
+
+    # ===== EN-TÊTE AVEC FORMES GÉOMÉTRIQUES =====
+
+    # Triangle bleu haut gauche
+    points_left = [(0, 0), (280, 0), (250, 200)]
+    draw.polygon(points_left, fill=primary_blue)
+
+    # Triangle bleu haut droit
+    points_right = [(card_width, 0), (card_width - 280, 0), (card_width - 250, 200)]
+    draw.polygon(points_right, fill=primary_blue)
 
     # Titre de l'association
-    draw.text((card_width // 2, 35), "ALUBILLES", fill='#FFFFFF', font=font_title, anchor='mm')
-    draw.text((card_width // 2, 80), "Association des Anciens Élèves", fill=secondary_color, font=font_subtitle, anchor='mm')
+    draw.text((card_width // 2, 40), "ALUBILLES", fill=text_color, font=font_company, anchor='mm')
 
-    # Zone photo (à gauche)
-    photo_x = 40
-    photo_y = 150
-    photo_size = 180
+    # ===== ZONE PHOTO HEXAGON =====
+    photo_x = card_width // 2
+    photo_y = 280
+    hexagon_size = 100
 
-    # Cadre pour la photo
-    draw.rectangle([photo_x - 3, photo_y - 3, photo_x + photo_size + 3, photo_y + photo_size + 3],
-                   outline=primary_color, width=3)
+    # Dessiner hexagon (placeholder pour photo)
+    import math
+    hex_points = []
+    for i in range(6):
+        angle = math.radians(i * 60)
+        x = photo_x + hexagon_size * math.cos(angle)
+        y = photo_y + hexagon_size * math.sin(angle)
+        hex_points.append((x, y))
 
-    # Charger et redimensionner la photo si elle existe
+    draw.polygon(hex_points, fill=light_gray, outline=primary_blue)
+
+    # Charger et placer la photo si elle existe
     if membre_data.get('photo_path') and os.path.exists(membre_data['photo_path']):
         try:
             photo = Image.open(membre_data['photo_path'])
+            photo_size = 180
             photo = photo.resize((photo_size, photo_size), Image.Resampling.LANCZOS)
-            card.paste(photo, (photo_x, photo_y))
+            card.paste(photo, (photo_x - photo_size // 2, photo_y - photo_size // 2))
         except Exception:
-            # Photo par défaut si erreur
-            draw.rectangle([photo_x, photo_y, photo_x + photo_size, photo_y + photo_size],
-                          fill='#E0E0E0')
-            draw.text((photo_x + photo_size // 2, photo_y + photo_size // 2), "Photo",
-                     fill='#999999', font=font_info, anchor='mm')
+            draw.text((photo_x, photo_y), "PHOTO", fill='#999999', font=font_title, anchor='mm')
     else:
-        # Placeholder photo
-        draw.rectangle([photo_x, photo_y, photo_x + photo_size, photo_y + photo_size],
-                      fill='#E0E0E0')
-        draw.text((photo_x + photo_size // 2, photo_y + photo_size // 2), "Photo",
-                 fill='#999999', font=font_info, anchor='mm')
+        draw.text((photo_x, photo_y), "PHOTO", fill='#999999', font=font_title, anchor='mm')
 
-    # Informations du membre (à droite de la photo)
-    info_x = 260
-    info_y = 160
+    # ===== INFORMATIONS DU MEMBRE =====
+    info_y_start = 450
 
     # Nom et prénom
     nom_complet = f"{membre_data.get('prenom', '')} {membre_data.get('nom', '')}".upper()
-    draw.text((info_x, info_y), nom_complet, fill=primary_color, font=font_name)
+    draw.text((card_width // 2, info_y_start), nom_complet, fill=primary_blue, font=font_name, anchor='mm')
 
-    # Promotion
-    if membre_data.get('promotion'):
-        draw.text((info_x, info_y + 45), f"Promotion: {membre_data['promotion']}", fill=text_color, font=font_info)
+    # Titre/Position
+    draw.text((card_width // 2, info_y_start + 60), "MEMBRE", fill=text_color, font=font_title, anchor='mm')
+
+    # Ligne de séparation
+    draw.line([(150, info_y_start + 90), (card_width - 150, info_y_start + 90)], fill=primary_blue, width=2)
+
+    # Données personnelles
+    info_start = info_y_start + 140
+    line_height = 60
+
+    # ID Number
+    draw.text((80, info_start), "ID No", fill=text_color, font=font_label, anchor='lm')
+    draw.text((320, info_start), f": {membre_data.get('numero_membre', 'N/A')}", fill=text_color, font=font_info,
+              anchor='lm')
 
     # Date de naissance
-    if membre_data.get('date_naissance'):
-        draw.text((info_x, info_y + 75), f"Né(e) le: {membre_data['date_naissance']}", fill=text_color, font=font_info)
+    draw.text((80, info_start + line_height), "DOB", fill=text_color, font=font_label, anchor='lm')
+    draw.text((320, info_start + line_height), f": {membre_data.get('date_naissance', 'N/A')}", fill=text_color,
+              font=font_info, anchor='lm')
 
     # Email
-    if membre_data.get('email'):
-        email_text = membre_data['email']
-        if len(email_text) > 30:
-            email_text = email_text[:27] + "..."
-        draw.text((info_x, info_y + 105), f"Email: {email_text}", fill=text_color, font=font_info)
+    draw.text((80, info_start + line_height * 2), "Email", fill=text_color, font=font_label, anchor='lm')
+    email_text = membre_data.get('email', 'N/A')
+    if len(email_text) > 30:
+        email_text = email_text[:27] + "..."
+    draw.text((320, info_start + line_height * 2), f": {email_text}", fill=text_color, font=font_info, anchor='lm')
 
     # Téléphone
-    if membre_data.get('telephone'):
-        draw.text((info_x, info_y + 135), f"Tél: {membre_data['telephone']}", fill=text_color, font=font_info)
+    draw.text((80, info_start + line_height * 3), "Phone", fill=text_color, font=font_label, anchor='lm')
+    draw.text((320, info_start + line_height * 3), f": {membre_data.get('telephone', 'N/A')}", fill=text_color,
+              font=font_info, anchor='lm')
 
-    # Ligne de séparation en bas
-    draw.rectangle([0, card_height - 80, card_width, card_height], fill=primary_color)
+    # ===== PIED DE PAGE AVEC FORME COURBE =====
+    # Forme courbe en bas
+    footer_y = 900
 
-    # Numéro de membre
-    draw.text((40, card_height - 50), f"N° {membre_data.get('numero_membre', 'N/A')}", fill='#FFFFFF', font=font_number)
+    # Courbe supérieure (ondulée)
+    points_curve = []
+    for x in range(0, card_width + 1, 20):
+        y = footer_y - 30 + 30 * abs((x - card_width // 2) / (card_width // 2)) ** 0.5
+        points_curve.append((x, y))
 
-    # Date d'inscription
+    # Compléter le polygone
+    points_curve.append((card_width, footer_y))
+    points_curve.append((card_width, card_height))
+    points_curve.append((0, card_height))
+    points_curve.append((0, footer_y))
+
+    draw.polygon(points_curve, fill=primary_blue)
+
+    # Texte du pied de page
     if membre_data.get('date_inscription'):
-        date_text = membre_data['date_inscription'].split(' ')[0] if ' ' in membre_data['date_inscription'] else membre_data['date_inscription']
-        draw.text((card_width - 40, card_height - 50), f"Membre depuis: {date_text}",
-                 fill=secondary_color, font=font_info, anchor='rm')
-
-    # Bande décorative
-    draw.rectangle([0, 120, card_width, 125], fill=secondary_color)
+        date_text = membre_data['date_inscription'].split(' ')[0] if ' ' in membre_data['date_inscription'] else \
+        membre_data['date_inscription']
+        draw.text((card_width // 2, card_height - 50), f"Membre depuis: {date_text}",
+                  fill=white, font=font_info, anchor='mm')
 
     # Sauvegarder la carte
     card.save(output_path, 'PNG', quality=95)
+    print(f"Carte moderne créée: {output_path}")
 
     return output_path
 
@@ -123,17 +154,15 @@ def create_member_card(membre_data, output_path):
 if __name__ == '__main__':
     # Test de génération
     test_data = {
-        'numero_membre': 'ALU-2024-0001',
-        'nom': 'DIALLO',
-        'prenom': 'Mamadou',
-        'date_naissance': '1990-05-15',
-        'promotion': '2010',
-        'email': 'mamadou.diallo@email.com',
-        'telephone': '+221 77 123 45 67',
-        'date_inscription': '2024-01-15',
+        'numero_membre': 'ALU-2025-0001',
+        'nom': 'SYLLA',
+        'prenom': 'ALIOUNE',
+        'date_naissance': '2002-09-12',
+        'email': 'alioune.sylla@email.com',
+        'telephone': '+221 77 330 7117',
+        'date_inscription': '2025-11-18',
         'photo_path': None
     }
 
-    output = 'test_card.png'
-    create_member_card(test_data, output)
-    print(f"Carte de test créée: {output}")
+    output = 'test_card_modern.png'
+    create_modern_member_card(test_data, output)

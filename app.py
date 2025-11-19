@@ -8,7 +8,7 @@ from database import (
     get_membres_en_attente, get_membres_approuves, get_membres_refuses,
     approuver_membre, refuser_membre
 )
-from card_generator import create_member_card
+from card_generator import create_modern_member_card
 
 app = Flask(__name__)
 app.secret_key = 'alubilles_secret_key_2024'
@@ -211,7 +211,7 @@ def admin_approuver(membre_id):
         'photo_path': membre['photo_path']
     }
 
-    create_member_card(membre_data, carte_path)
+    create_modern_member_card(membre_data, carte_path)
     update_carte_path(membre_id, carte_path)
 
     flash(f'Inscription de {membre["prenom"]} {membre["nom"]} approuvée! Carte générée.', 'success')
