@@ -25,6 +25,7 @@ def init_db():
             prenom TEXT NOT NULL,
             date_naissance TEXT,
             promotion TEXT,
+            programme TEXT,
             email TEXT,
             telephone TEXT,
             adresse TEXT,
@@ -111,7 +112,7 @@ def generate_member_number():
 
     return numero
 
-def add_membre(nom, prenom, date_naissance, promotion, email, telephone, adresse, photo_path):
+def add_membre(nom, prenom, date_naissance, promotion, programme, email, telephone, adresse, photo_path):
     """Ajouter un nouveau membre à la base de données (statut en_attente par défaut)"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -121,10 +122,10 @@ def add_membre(nom, prenom, date_naissance, promotion, email, telephone, adresse
 
     cursor.execute('''
         INSERT INTO membres (numero_membre, nom, prenom, date_naissance, promotion,
-                           email, telephone, adresse, photo_path, date_inscription, statut)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente')
+                           programme, email, telephone, adresse, photo_path, date_inscription, statut)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente')
     ''', (numero_membre, nom, prenom, date_naissance, promotion,
-          email, telephone, adresse, photo_path, date_inscription))
+          programme, email, telephone, adresse, photo_path, date_inscription))
 
     membre_id = cursor.lastrowid
     conn.commit()

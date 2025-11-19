@@ -55,6 +55,7 @@ def inscription():
         prenom = request.form.get('prenom', '').strip()
         date_naissance = request.form.get('date_naissance', '').strip()
         promotion = request.form.get('promotion', '').strip()
+        programme = request.form.get('programme', '').strip()
         email = request.form.get('email', '').strip()
         telephone = request.form.get('telephone', '').strip()
         adresse = request.form.get('adresse', '').strip()
@@ -75,7 +76,7 @@ def inscription():
 
         # Ajouter le membre à la base de données (statut en_attente)
         membre_id, numero_membre = add_membre(
-            nom, prenom, date_naissance, promotion,
+            nom, prenom, date_naissance, promotion, programme,
             email, telephone, adresse, photo_path
         )
 
