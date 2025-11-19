@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Verifier Statut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Association des Anciens Eleves</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}">Inscription</a></li>
+                <li><a href="{{ url_for('verifier_statut') }}">Verifier mon Statut</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <h2>Verifier le Statut de mon Inscription</h2>
+
+            <form action="{{ url_for('verifier_statut') }}" method="POST">
+                <div class="form-group">
+                    <label for="numero_membre">Numero de Dossier</label>
+                    <input type="text" id="numero_membre" name="numero_membre" required placeholder="Ex: ALU-2024-0001">
+                    <small>Entrez le numero que vous avez recu lors de votre inscription</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Verifier
+                </button>
+            </form>
+        </div>
+
+        {% if membre %}
+        <div class="confirmation-container" style="margin-top: 30px;">
+            <h2>Resultat de la Recherche</h2>
+
+            <div class="member-info">
+                <h3>{{ membre.prenom }} {{ membre.nom }}</h3>
+                <p><strong>Numero de Dossier:</strong> {{ membre.numero_membre }}</p>
+                {% if membre.promotion %}
+                <p><strong>Promotion:</strong> {{ membre.promotion }}</p>
+                {% endif %}
+                <p><strong>Date de demande:</strong> {{ membre.date_inscription }}</p>
+            </div>
+
+            {% if membre.statut == 'en_attente' %}
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #856404;">Statut: En Attente</h3>
+                <p style="color: #856404;">
+                    Votre demande est en cours d'examen par l'administration.<br>
+                    Vous serez notifie une fois la decision prise.
+                </p>
+            </div>
+
+            {% elif membre.statut == 'approuve' %}
+            <div style="background: #d4edda; border: 1px solid #28a745; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #155724;">Statut: Approuve</h3>
+                <p style="color: #155724;">
+                    Felicitations! Votre inscription a ete approuvee.<br>
+                    Vous pouvez maintenant telecharger votre carte de membre.
+                </p>
+                {% if membre.date_validation %}
+                <p style="color: #155724;"><small>Approuve le: {{ membre.date_validation }}</small></p>
+                {% endif %}
+            </div>
+
+            {% if membre.carte_path %}
+            <img src="{{ url_for('static', filename='../' + membre.carte_path) }}" alt="Carte de membre" class="card-preview">
+
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">
+                    Telecharger ma Carte de Membre
+                </a>
+            </div>
+            {% endif %}
+
+            {% elif membre.statut == 'refuse' %}
+            <div style="background: #f8d7da; border: 1px solid #dc3545; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #721c24;">Statut: Refuse</h3>
+                <p style="color: #721c24;">
+                    Malheureusement, votre demande d'inscription a ete refusee.
+                </p>
+                {% if membre.motif_refus %}
+                <p style="color: #721c24;"><strong>Motif:</strong> {{ membre.motif_refus }}</p>
+                {% endif %}
+                {% if membre.date_validation %}
+                <p style="color: #721c24;"><small>Decision du: {{ membre.date_validation }}</small></p>
+                {% endif %}
+            </div>
+
+            <p>Si vous pensez qu'il s'agit d'une erreur, veuillez contacter l'administration.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

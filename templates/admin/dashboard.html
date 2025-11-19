@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Tableau de Bord Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Espace Administration</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions ({{ stats.en_attente }})</a></li>
+                <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Tableau de Bord</h2>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>{{ stats.total }}</h3>
+                <p>Total Demandes</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #ffc107;">
+                <h3>{{ stats.en_attente }}</h3>
+                <p>En Attente</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #28a745;">
+                <h3>{{ stats.approuves }}</h3>
+                <p>Approuves</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #dc3545;">
+                <h3>{{ stats.refuses }}</h3>
+                <p>Refuses</p>
+            </div>
+        </div>
+
+        {% if inscriptions %}
+        <h3 style="margin-top: 30px;">Inscriptions en Attente de Validation</h3>
+
+        <div class="members-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Numero</th>
+                        <th>Nom</th>
+                        <th>Promotion</th>
+                        <th>Date Demande</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membre in inscriptions[:5] %}
+                    <tr>
+                        <td>
+                            {% if membre.photo_path %}
+                            <img src="{{ url_for('static', filename='../' + membre.photo_path) }}" alt="Photo">
+                            {% else %}
+                            <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">?</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ membre.numero_membre }}</td>
+                        <td>{{ membre.prenom }} {{ membre.nom }}</td>
+                        <td>{{ membre.promotion or '-' }}</td>
+                        <td>{{ membre.date_inscription.split(' ')[0] }}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('admin_voir_membre', membre_id=membre.id) }}" class="btn btn-primary">Voir</a>
+                            <form action="{{ url_for('admin_approuver', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-success">Approuver</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if inscriptions|length > 5 %}
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('admin_inscriptions') }}" class="btn btn-secondary">Voir toutes les inscriptions ({{ inscriptions|length }})</a>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div style="background: #d4edda; padding: 30px; border-radius: 10px; text-align: center; margin-top: 30px;">
+            <h3 style="color: #155724;">Aucune inscription en attente</h3>
+            <p style="color: #155724;">Toutes les demandes ont ete traitees.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Administration</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

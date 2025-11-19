@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Liste des Membres</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Espace Administration</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions</a></li>
+                <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Membres Approuves ({{ membres|length }})</h2>
+
+        <form action="{{ url_for('admin_membres') }}" method="GET" class="search-box">
+            <input type="text" name="search" placeholder="Rechercher par nom, prenom ou numero..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+            {% if search_query %}
+            <a href="{{ url_for('admin_membres') }}" class="btn btn-secondary">Effacer</a>
+            {% endif %}
+        </form>
+
+        <div class="members-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Numero</th>
+                        <th>Nom</th>
+                        <th>Prenom</th>
+                        <th>Promotion</th>
+                        <th>Email</th>
+                        <th>Valide le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if membres %}
+                        {% for membre in membres %}
+                        <tr>
+                            <td>
+                                {% if membre.photo_path %}
+                                <img src="{{ url_for('static', filename='../' + membre.photo_path) }}" alt="Photo">
+                                {% else %}
+                                <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: #999;">?</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ membre.numero_membre }}</td>
+                            <td>{{ membre.nom }}</td>
+                            <td>{{ membre.prenom }}</td>
+                            <td>{{ membre.promotion or '-' }}</td>
+                            <td>{{ membre.email or '-' }}</td>
+                            <td>{{ membre.date_validation.split(' ')[0] if membre.date_validation else '-' }}</td>
+                            <td class="actions">
+                                <a href="{{ url_for('admin_voir_membre', membre_id=membre.id) }}" class="btn btn-primary">Voir</a>
+                                {% if membre.carte_path %}
+                                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">Carte</a>
+                                {% endif %}
+                                <form action="{{ url_for('admin_supprimer', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger btn-delete" onclick="return confirm('Etes-vous sur de vouloir supprimer ce membre?')">Suppr</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                {% if search_query %}
+                                Aucun membre trouve pour "{{ search_query }}"
+                                {% else %}
+                                Aucun membre approuve pour le moment
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Administration</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

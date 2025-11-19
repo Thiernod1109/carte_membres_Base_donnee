@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import hashlib
 import os
 
 DATABASE_PATH = 'alubilles.db'
@@ -15,6 +16,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # Table des membres avec statut d'inscription
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS membres (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,12 +31,69 @@ def init_db():
             photo_path TEXT,
             carte_path TEXT,
             date_inscription TEXT NOT NULL,
+            statut TEXT DEFAULT 'en_attente',
+            date_validation TEXT,
+            motif_refus TEXT,
             actif INTEGER DEFAULT 1
         )
     ''')
 
+    # Table des administrateurs
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            nom TEXT,
+            email TEXT,
+            date_creation TEXT NOT NULL,
+            actif INTEGER DEFAULT 1
+        )
+    ''')
+
+    # Créer un admin par défaut s'il n'existe pas
+    cursor.execute('SELECT COUNT(*) FROM admins')
+    if cursor.fetchone()[0] == 0:
+        default_password = hash_password('admin123')
+        cursor.execute('''
+            INSERT INTO admins (username, password_hash, nom, email, date_creation)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ('admin', default_password, 'Administrateur', 'admin@alubilles.org',
+              datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+
     conn.commit()
     conn.close()
+
+def hash_password(password):
+    """Hasher un mot de passe"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def verify_admin(username, password):
+    """Vérifier les identifiants d'un administrateur"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    password_hash = hash_password(password)
+    cursor.execute('''
+        SELECT * FROM admins
+        WHERE username = ? AND password_hash = ? AND actif = 1
+    ''', (username, password_hash))
+
+    admin = cursor.fetchone()
+    conn.close()
+
+    return admin
+
+def get_admin(admin_id):
+    """Récupérer un admin par son ID"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM admins WHERE id = ?', (admin_id,))
+    admin = cursor.fetchone()
+
+    conn.close()
+    return admin
 
 def generate_member_number():
     """Générer un numéro de membre unique"""
@@ -53,7 +112,7 @@ def generate_member_number():
     return numero
 
 def add_membre(nom, prenom, date_naissance, promotion, email, telephone, adresse, photo_path):
-    """Ajouter un nouveau membre à la base de données"""
+    """Ajouter un nouveau membre à la base de données (statut en_attente par défaut)"""
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -62,8 +121,8 @@ def add_membre(nom, prenom, date_naissance, promotion, email, telephone, adresse
 
     cursor.execute('''
         INSERT INTO membres (numero_membre, nom, prenom, date_naissance, promotion,
-                           email, telephone, adresse, photo_path, date_inscription)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           email, telephone, adresse, photo_path, date_inscription, statut)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente')
     ''', (numero_membre, nom, prenom, date_naissance, promotion,
           email, telephone, adresse, photo_path, date_inscription))
 
@@ -72,6 +131,36 @@ def add_membre(nom, prenom, date_naissance, promotion, email, telephone, adresse
     conn.close()
 
     return membre_id, numero_membre
+
+def approuver_membre(membre_id):
+    """Approuver l'inscription d'un membre"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    date_validation = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('''
+        UPDATE membres
+        SET statut = 'approuve', date_validation = ?, motif_refus = NULL
+        WHERE id = ?
+    ''', (date_validation, membre_id))
+
+    conn.commit()
+    conn.close()
+
+def refuser_membre(membre_id, motif=''):
+    """Refuser l'inscription d'un membre"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    date_validation = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('''
+        UPDATE membres
+        SET statut = 'refuse', date_validation = ?, motif_refus = ?
+        WHERE id = ?
+    ''', (date_validation, motif, membre_id))
+
+    conn.commit()
+    conn.close()
 
 def update_carte_path(membre_id, carte_path):
     """Mettre à jour le chemin de la carte de membre"""
@@ -94,6 +183,51 @@ def get_membre(membre_id):
     conn.close()
     return membre
 
+def get_membres_en_attente():
+    """Récupérer les membres en attente de validation"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT * FROM membres
+        WHERE statut = 'en_attente'
+        ORDER BY date_inscription ASC
+    ''')
+    membres = cursor.fetchall()
+
+    conn.close()
+    return membres
+
+def get_membres_approuves():
+    """Récupérer les membres approuvés"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT * FROM membres
+        WHERE statut = 'approuve'
+        ORDER BY date_validation DESC
+    ''')
+    membres = cursor.fetchall()
+
+    conn.close()
+    return membres
+
+def get_membres_refuses():
+    """Récupérer les membres refusés"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT * FROM membres
+        WHERE statut = 'refuse'
+        ORDER BY date_validation DESC
+    ''')
+    membres = cursor.fetchall()
+
+    conn.close()
+    return membres
+
 def get_all_membres():
     """Récupérer tous les membres"""
     conn = get_db_connection()
@@ -105,16 +239,24 @@ def get_all_membres():
     conn.close()
     return membres
 
-def search_membres(query):
+def search_membres(query, statut=None):
     """Rechercher des membres par nom, prénom ou numéro"""
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        SELECT * FROM membres
-        WHERE nom LIKE ? OR prenom LIKE ? OR numero_membre LIKE ?
-        ORDER BY nom, prenom
-    ''', (f'%{query}%', f'%{query}%', f'%{query}%'))
+    if statut:
+        cursor.execute('''
+            SELECT * FROM membres
+            WHERE (nom LIKE ? OR prenom LIKE ? OR numero_membre LIKE ?)
+            AND statut = ?
+            ORDER BY nom, prenom
+        ''', (f'%{query}%', f'%{query}%', f'%{query}%', statut))
+    else:
+        cursor.execute('''
+            SELECT * FROM membres
+            WHERE nom LIKE ? OR prenom LIKE ? OR numero_membre LIKE ?
+            ORDER BY nom, prenom
+        ''', (f'%{query}%', f'%{query}%', f'%{query}%'))
 
     membres = cursor.fetchall()
     conn.close()
@@ -131,7 +273,30 @@ def delete_membre(membre_id):
     conn.commit()
     conn.close()
 
+def get_stats():
+    """Obtenir les statistiques des membres"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    stats = {}
+
+    cursor.execute('SELECT COUNT(*) FROM membres')
+    stats['total'] = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM membres WHERE statut = "en_attente"')
+    stats['en_attente'] = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM membres WHERE statut = "approuve"')
+    stats['approuves'] = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM membres WHERE statut = "refuse"')
+    stats['refuses'] = cursor.fetchone()[0]
+
+    conn.close()
+    return stats
+
 # Initialiser la base de données au démarrage
 if __name__ == '__main__':
     init_db()
     print("Base de données initialisée avec succès!")
+    print("Admin par défaut: username='admin', password='admin123'")

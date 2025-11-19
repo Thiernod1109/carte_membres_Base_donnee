@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALUBILLES - Confirmation d'Inscription</title>
+    <title>ALUBILLES - Inscription Envoyee</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -16,7 +16,7 @@
         <nav class="nav">
             <ul>
                 <li><a href="{{ url_for('index') }}">Inscription</a></li>
-                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+                <li><a href="{{ url_for('verifier_statut') }}">Verifier mon Statut</a></li>
             </ul>
         </nav>
 
@@ -31,11 +31,19 @@
         {% endwith %}
 
         <div class="confirmation-container">
-            <h2>Inscription Reussie!</h2>
+            <h2>Demande d'Inscription Envoyee!</h2>
+
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #856404; margin-bottom: 10px;">En Attente de Validation</h3>
+                <p style="color: #856404;">
+                    Votre demande d'inscription a ete enregistree avec succes.<br>
+                    Elle sera examinee par l'administration apres verification de votre paiement.
+                </p>
+            </div>
 
             <div class="member-info">
-                <h3>Informations du Membre</h3>
-                <p><strong>Numero de Membre:</strong> {{ membre.numero_membre }}</p>
+                <h3>Recapitulatif de votre Demande</h3>
+                <p><strong>Numero de Dossier:</strong> <span style="color: var(--primary-color); font-size: 1.2em;">{{ membre.numero_membre }}</span></p>
                 <p><strong>Nom:</strong> {{ membre.prenom }} {{ membre.nom }}</p>
                 {% if membre.promotion %}
                 <p><strong>Promotion:</strong> {{ membre.promotion }}</p>
@@ -46,25 +54,20 @@
                 {% if membre.telephone %}
                 <p><strong>Telephone:</strong> {{ membre.telephone }}</p>
                 {% endif %}
-                <p><strong>Date d'inscription:</strong> {{ membre.date_inscription }}</p>
+                <p><strong>Date de demande:</strong> {{ membre.date_inscription }}</p>
             </div>
 
-            <h3>Votre Carte de Membre</h3>
-
-            {% if membre.carte_path %}
-            <img src="{{ url_for('static', filename='../' + membre.carte_path) }}" alt="Carte de membre" class="card-preview">
-
-            <div style="margin-top: 20px;">
-                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">
-                    Telecharger la Carte
-                </a>
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: var(--primary-color);">Important - Conservez votre numero!</h4>
+                <p>Notez bien votre <strong>numero de dossier: {{ membre.numero_membre }}</strong></p>
+                <p>Vous en aurez besoin pour verifier le statut de votre inscription et telecharger votre carte une fois approuvee.</p>
             </div>
-            {% else %}
-            <p>La carte sera disponible prochainement.</p>
-            {% endif %}
 
             <div style="margin-top: 30px;">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <a href="{{ url_for('verifier_statut') }}" class="btn btn-primary">
+                    Verifier le Statut de ma Demande
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-left: 10px;">
                     Nouvelle Inscription
                 </a>
             </div>

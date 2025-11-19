@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALUBILLES - Liste des Membres</title>
+    <title>ALUBILLES - Inscriptions Refusees</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header class="header">
         <h1>ALUBILLES</h1>
-        <p>Association des Anciens Eleves</p>
+        <p>Espace Administration</p>
     </header>
 
     <div class="container">
         <nav class="nav">
             <ul>
-                <li><a href="{{ url_for('index') }}">Inscription</a></li>
-                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+                <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions</a></li>
+                <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
             </ul>
         </nav>
 
@@ -30,20 +33,7 @@
             {% endif %}
         {% endwith %}
 
-        <div class="stats-container" id="stats-container">
-            <div class="stat-card">
-                <h3 id="total-membres">{{ membres|length }}</h3>
-                <p>Membres Inscrits</p>
-            </div>
-        </div>
-
-        <form action="{{ url_for('liste_membres') }}" method="GET" class="search-box">
-            <input type="text" name="search" placeholder="Rechercher par nom, prenom ou numero..." value="{{ search_query }}">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
-            {% if search_query %}
-            <a href="{{ url_for('liste_membres') }}" class="btn btn-secondary">Effacer</a>
-            {% endif %}
-        </form>
+        <h2>Inscriptions Refusees ({{ membres|length }})</h2>
 
         <div class="members-table">
             <table>
@@ -51,10 +41,11 @@
                     <tr>
                         <th>Photo</th>
                         <th>Numero</th>
-                        <th>Nom</th>
-                        <th>Prenom</th>
+                        <th>Nom Complet</th>
                         <th>Promotion</th>
-                        <th>Email</th>
+                        <th>Date Demande</th>
+                        <th>Date Refus</th>
+                        <th>Motif</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -72,29 +63,23 @@
                                 {% endif %}
                             </td>
                             <td>{{ membre.numero_membre }}</td>
-                            <td>{{ membre.nom }}</td>
-                            <td>{{ membre.prenom }}</td>
+                            <td>{{ membre.prenom }} {{ membre.nom }}</td>
                             <td>{{ membre.promotion or '-' }}</td>
-                            <td>{{ membre.email or '-' }}</td>
+                            <td>{{ membre.date_inscription.split(' ')[0] }}</td>
+                            <td>{{ membre.date_validation.split(' ')[0] if membre.date_validation else '-' }}</td>
+                            <td>{{ membre.motif_refus or '-' }}</td>
                             <td class="actions">
-                                <a href="{{ url_for('voir_membre', membre_id=membre.id) }}" class="btn btn-primary">Voir</a>
-                                {% if membre.carte_path %}
-                                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">Carte</a>
-                                {% endif %}
-                                <form action="{{ url_for('supprimer_membre', membre_id=membre.id) }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger btn-delete">Suppr</button>
+                                <a href="{{ url_for('admin_voir_membre', membre_id=membre.id) }}" class="btn btn-primary">Voir</a>
+                                <form action="{{ url_for('admin_supprimer', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger btn-delete" onclick="return confirm('Etes-vous sur de vouloir supprimer definitivement cette demande?')">Suppr</button>
                                 </form>
                             </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px;">
-                                {% if search_query %}
-                                Aucun membre trouve pour "{{ search_query }}"
-                                {% else %}
-                                Aucun membre inscrit pour le moment
-                                {% endif %}
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                Aucune inscription refusee
                             </td>
                         </tr>
                     {% endif %}
@@ -104,7 +89,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+        <p>&copy; 2024 ALUBILLES - Administration</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

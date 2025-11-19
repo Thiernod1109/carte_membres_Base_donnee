@@ -16,7 +16,7 @@
         <nav class="nav">
             <ul>
                 <li><a href="{{ url_for('index') }}">Inscription</a></li>
-                <li><a href="{{ url_for('liste_membres') }}">Liste des Membres</a></li>
+                <li><a href="{{ url_for('verifier_statut') }}">Verifier mon Statut</a></li>
             </ul>
         </nav>
 
@@ -32,6 +32,10 @@
 
         <div class="form-container">
             <h2>Formulaire d'Inscription</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Remplissez ce formulaire pour demander votre carte de membre ALUBILLES.<br>
+                <small>Votre demande sera examinee par l'administration apres verification du paiement.</small>
+            </p>
 
             <form id="inscription-form" action="{{ url_for('inscription') }}" method="POST" enctype="multipart/form-data">
                 <div class="form-row">
@@ -83,7 +87,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
-                    S'inscrire et Generer la Carte
+                    Envoyer ma Demande d'Inscription
                 </button>
             </form>
         </div>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Inscriptions en Attente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Espace Administration</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions ({{ inscriptions|length }})</a></li>
+                <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Inscriptions en Attente de Validation</h2>
+        <p style="color: #666; margin-bottom: 20px;">
+            Ces demandes sont en attente de verification du paiement et d'approbation.
+        </p>
+
+        <div class="members-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Numero</th>
+                        <th>Nom Complet</th>
+                        <th>Promotion</th>
+                        <th>Email</th>
+                        <th>Telephone</th>
+                        <th>Date Demande</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if inscriptions %}
+                        {% for membre in inscriptions %}
+                        <tr>
+                            <td>
+                                {% if membre.photo_path %}
+                                <img src="{{ url_for('static', filename='../' + membre.photo_path) }}" alt="Photo">
+                                {% else %}
+                                <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: #999;">?</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ membre.numero_membre }}</td>
+                            <td>{{ membre.prenom }} {{ membre.nom }}</td>
+                            <td>{{ membre.promotion or '-' }}</td>
+                            <td>{{ membre.email or '-' }}</td>
+                            <td>{{ membre.telephone or '-' }}</td>
+                            <td>{{ membre.date_inscription.split(' ')[0] }}</td>
+                            <td class="actions">
+                                <a href="{{ url_for('admin_voir_membre', membre_id=membre.id) }}" class="btn btn-primary">Voir</a>
+                                <form action="{{ url_for('admin_approuver', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-success">Approuver</button>
+                                </form>
+                                <button class="btn btn-danger" onclick="showRefusModal({{ membre.id }}, '{{ membre.prenom }} {{ membre.nom }}')">Refuser</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                Aucune inscription en attente
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de refus -->
+    <div id="refusModal" class="modal">
+        <div class="modal-content">
+            <h3>Refuser l'inscription</h3>
+            <p id="refusNom"></p>
+            <form id="refusForm" method="POST">
+                <div class="form-group">
+                    <label for="motif">Motif du refus (optionnel)</label>
+                    <textarea id="motif" name="motif" placeholder="Ex: Paiement non recu, document manquant..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-danger">Confirmer le Refus</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideRefusModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Administration</p>
+    </footer>
+
+    <script>
+        function showRefusModal(membreId, nom) {
+            document.getElementById('refusModal').style.display = 'block';
+            document.getElementById('refusNom').textContent = 'Membre: ' + nom;
+            document.getElementById('refusForm').action = '/admin/refuser/' + membreId;
+        }
+
+        function hideRefusModal() {
+            document.getElementById('refusModal').style.display = 'none';
+        }
+
+        // Fermer le modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            var modal = document.getElementById('refusModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

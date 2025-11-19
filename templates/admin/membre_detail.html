@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUBILLES - Detail du Membre</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>ALUBILLES</h1>
+        <p>Espace Administration</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <ul>
+                <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions</a></li>
+                <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+            </ul>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="confirmation-container">
+            <h2>Detail du Membre</h2>
+
+            <!-- Statut -->
+            {% if membre.statut == 'en_attente' %}
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px; display: inline-block;">
+                <strong style="color: #856404;">Statut: En Attente</strong>
+            </div>
+            {% elif membre.statut == 'approuve' %}
+            <div style="background: #d4edda; border: 1px solid #28a745; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px; display: inline-block;">
+                <strong style="color: #155724;">Statut: Approuve</strong>
+            </div>
+            {% elif membre.statut == 'refuse' %}
+            <div style="background: #f8d7da; border: 1px solid #dc3545; padding: 10px 20px; border-radius: 5px; margin-bottom: 20px; display: inline-block;">
+                <strong style="color: #721c24;">Statut: Refuse</strong>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; justify-content: center;">
+                <div style="flex: 0 0 200px;">
+                    {% if membre.photo_path %}
+                    <img src="{{ url_for('static', filename='../' + membre.photo_path) }}" alt="Photo" style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                    {% else %}
+                    <div style="width: 200px; height: 200px; background: #e0e0e0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #999; font-size: 3em;">?</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="member-info" style="flex: 1; min-width: 300px;">
+                    <h3>{{ membre.prenom }} {{ membre.nom }}</h3>
+                    <p><strong>Numero de Dossier:</strong> {{ membre.numero_membre }}</p>
+                    {% if membre.date_naissance %}
+                    <p><strong>Date de Naissance:</strong> {{ membre.date_naissance }}</p>
+                    {% endif %}
+                    {% if membre.promotion %}
+                    <p><strong>Promotion:</strong> {{ membre.promotion }}</p>
+                    {% endif %}
+                    {% if membre.email %}
+                    <p><strong>Email:</strong> {{ membre.email }}</p>
+                    {% endif %}
+                    {% if membre.telephone %}
+                    <p><strong>Telephone:</strong> {{ membre.telephone }}</p>
+                    {% endif %}
+                    {% if membre.adresse %}
+                    <p><strong>Adresse:</strong> {{ membre.adresse }}</p>
+                    {% endif %}
+                    <p><strong>Date de demande:</strong> {{ membre.date_inscription }}</p>
+                    {% if membre.date_validation %}
+                    <p><strong>Date de decision:</strong> {{ membre.date_validation }}</p>
+                    {% endif %}
+                    {% if membre.motif_refus %}
+                    <p><strong>Motif du refus:</strong> {{ membre.motif_refus }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions selon le statut -->
+            <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                {% if membre.statut == 'en_attente' %}
+                <form action="{{ url_for('admin_approuver', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-success">Approuver l'inscription</button>
+                </form>
+                <form action="{{ url_for('admin_refuser', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Etes-vous sur de vouloir refuser cette inscription?')">Refuser</button>
+                </form>
+                {% endif %}
+
+                {% if membre.statut == 'approuve' and membre.carte_path %}
+                <a href="{{ url_for('telecharger_carte', membre_id=membre.id) }}" class="btn btn-success">
+                    Telecharger la Carte
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">
+                    Retour au Tableau de Bord
+                </a>
+
+                <form action="{{ url_for('admin_supprimer', membre_id=membre.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Etes-vous sur de vouloir supprimer definitivement ce membre?')">Supprimer</button>
+                </form>
+            </div>
+
+            {% if membre.statut == 'approuve' and membre.carte_path %}
+            <h3 style="margin-top: 30px;">Carte de Membre</h3>
+            <img src="{{ url_for('static', filename='../' + membre.carte_path) }}" alt="Carte de membre" class="card-preview">
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 ALUBILLES - Administration</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
