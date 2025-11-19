@@ -13,6 +13,9 @@ from card_generator import create_modern_member_card
 app = Flask(__name__)
 app.secret_key = 'alubilles_secret_key_2024'
 
+# ✅ INITIALISER LA BASE DE DONNÉES (IMPORTANT POUR GUNICORN/RENDER)
+init_db()
+
 # Configuration
 UPLOAD_FOLDER = 'static/uploads'
 CARDS_FOLDER = 'cards'
@@ -287,8 +290,6 @@ def api_stats():
     return jsonify(stats)
 
 if __name__ == '__main__':
-    # Initialiser la base de données
-    init_db()
     print("=" * 50)
     print("ALUBILLES - Système de Gestion des Membres")
     print("=" * 50)

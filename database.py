@@ -295,9 +295,3 @@ def get_stats():
 
     conn.close()
     return stats
-
-# Initialiser la base de données au démarrage
-if __name__ == '__main__':
-    init_db()
-    print("Base de données initialisée avec succès!")
-    print("Admin par défaut: username='admin', password='admin123'")
