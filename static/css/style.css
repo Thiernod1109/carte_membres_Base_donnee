@@ -21,6 +21,30 @@ body {
     background-color: var(--bg-light);
     color: var(--text-color);
     line-height: 1.6;
+    /* Background avec logo */
+    background-image: url("/static/images/logo billes.jpg");
+    background-repeat: no-repeat;
+    background-size: 600px;
+    background-position: center bottom;
+    background-attachment: fixed;
+    opacity: 1;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("/static/images/logo billes.jpg");
+    background-repeat: no-repeat;
+    background-size: 600px;
+    background-position: center bottom;
+    background-attachment: fixed;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
 }
 
 /* Container */
@@ -28,25 +52,50 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 
-/* Header */
+/* ==================== HEADER AVEC LOGO ==================== */
 .header {
-    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: white;
-    padding: 30px 0;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     margin-bottom: 30px;
 }
 
-.header h1 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
+.header-logo {
+    width: 100px;
+    height: 103px;
+    flex-shrink: 0;
 }
 
-.header p {
+.header-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.header-content p {
+    margin: 10px 0 0 0;
+    font-size: 16px;
     color: var(--secondary-color);
-    font-size: 1.1em;
+    letter-spacing: 1px;
 }
 
 /* Navigation */
@@ -79,14 +128,15 @@ body {
     color: white;
 }
 
-/* Formulaire */
+/* ==================== FORMULAIRE ==================== */
 .form-container {
+    position: relative;
     background: white;
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    max-width: 700px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
+    z-index: 2;
 }
 
 .form-container h2 {
@@ -95,6 +145,7 @@ body {
     text-align: center;
     padding-bottom: 15px;
     border-bottom: 3px solid var(--secondary-color);
+    font-size: 28px;
 }
 
 .form-group {
@@ -169,7 +220,86 @@ body {
     border-radius: 5px;
 }
 
-/* Boutons */
+/* ==================== SECTION DE CONSENTEMENT ==================== */
+.consent-section {
+    background-color: #f9f9f9;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px 0 20px 0;
+    position: relative;
+    z-index: 2;
+}
+
+.consent-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.consent-text {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.consent-text ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.consent-text li {
+    margin: 8px 0;
+}
+
+.consent-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.consent-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: var(--secondary-color);
+}
+
+.consent-checkbox label {
+    flex: 1;
+    cursor: pointer;
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.consent-checkbox input[type="checkbox"]:checked + label {
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.error-consent {
+    color: var(--error-color);
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+}
+
+.error-consent.show {
+    display: block;
+}
+
+/* ==================== BOUTONS ==================== */
 .btn {
     display: inline-block;
     padding: 12px 30px;
@@ -191,6 +321,7 @@ body {
 .btn-primary:hover {
     background: #2a4f7a;
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30, 58, 95, 0.3);
 }
 
 .btn-secondary {
@@ -223,6 +354,8 @@ body {
     border-radius: 5px;
     margin-bottom: 20px;
     font-weight: 500;
+    position: relative;
+    z-index: 2;
 }
 
 .alert-success {
@@ -246,6 +379,8 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     max-width: 800px;
     margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
 .card-preview {
@@ -282,6 +417,8 @@ body {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
 }
 
 .members-table table {
@@ -345,6 +482,8 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
+    position: relative;
+    z-index: 2;
 }
 
 .stat-card {
@@ -372,9 +511,11 @@ body {
     margin-top: 50px;
     color: #666;
     font-size: 0.9em;
+    position: relative;
+    z-index: 2;
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
     .form-row {
         grid-template-columns: 1fr;
@@ -386,15 +527,62 @@ body {
         gap: 10px;
     }
 
-    .header h1 {
-        font-size: 1.8em;
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px 10px;
+    }
+
+    .header-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .header-content h1 {
+        font-size: 36px;
+    }
+
+    .header-content p {
+        font-size: 14px;
     }
 
     .form-container {
         padding: 20px;
     }
 
+    body::before {
+        background-size: 400px;
+    }
+
     .members-table {
         overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content h1 {
+        font-size: 28px;
+    }
+
+    .form-container {
+        padding: 15px;
+    }
+
+    .consent-text {
+        max-height: 200px;
+        font-size: 12px;
+    }
+
+    .consent-checkbox {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .consent-checkbox input[type="checkbox"] {
+        margin-top: 0;
+    }
+
+    body::before {
+        background-size: 300px;
     }
 }

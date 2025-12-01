@@ -30,18 +30,27 @@
 </head>
 <body>
     <header class="header">
-        <h1>ALUBILLES</h1>
-        <p>Espace Administration</p>
+        <div class="header-logo">
+            <img src="{{ url_for('static', filename='images/logo billes.jpg') }}" alt="Logo ALUBILLES">
+
+        </div>
+
+
+        <div class="header-content">
+            <h1>ALUBI</h1>
+            <p>Espace Administration</p>
+        </div>
     </header>
 
     <div class="container">
         <nav class="nav">
             <ul>
                 <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
-                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions ({{ inscriptions|length }})</a></li>
+                <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions ({{ stats.en_attente }})</a></li>
                 <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
-                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
-                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+                <li><a href="{{ url_for('admin_suspendus') }}">Suspendus ({{ stats.suspendus }})</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refusés</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Déconnexion</a></li>
             </ul>
         </nav>
 
@@ -133,7 +142,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 ALUBILLES - Administration</p>
+        <p>&copy; 2025 ALUBILLES - Administration</p>
     </footer>
 
     <script>

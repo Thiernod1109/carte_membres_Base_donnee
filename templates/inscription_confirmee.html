@@ -8,8 +8,16 @@
 </head>
 <body>
     <header class="header">
-        <h1>ALUBILLES</h1>
-        <p>Association des Anciens Eleves</p>
+        <div class="header-logo">
+            <img src="{{ url_for('static', filename='images/logo billes.jpg') }}" alt="Logo ALUBILLES">
+
+        </div>
+
+
+        <div class="header-content">
+            <h1>ALUBI</h1>
+            <p>Association des Anciens Eleves de BILLES</p>
+        </div>
     </header>
 
     <div class="container">
@@ -78,7 +86,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 ALUBILLES - Association des Anciens Eleves</p>
+        <p>&copy; 2025 ALUBILLES - Association des Anciens Eleves</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

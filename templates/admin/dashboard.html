@@ -8,8 +8,14 @@
 </head>
 <body>
     <header class="header">
-        <h1>ALUBILLES</h1>
-        <p>Espace Administration</p>
+        <div class="header-logo">
+            <img src="{{ url_for('static', filename='images/logo billes.jpg') }}" alt="Logo ALUBILLES">
+        </div>
+
+        <div class="header-content">
+            <h1>ALUBI</h1>
+            <p>Espace Administration</p>
+        </div>
     </header>
 
     <div class="container">
@@ -18,8 +24,9 @@
                 <li><a href="{{ url_for('admin_dashboard') }}">Tableau de Bord</a></li>
                 <li><a href="{{ url_for('admin_inscriptions') }}">Inscriptions ({{ stats.en_attente }})</a></li>
                 <li><a href="{{ url_for('admin_membres') }}">Membres</a></li>
-                <li><a href="{{ url_for('admin_refuses') }}">Refuses</a></li>
-                <li><a href="{{ url_for('admin_logout') }}">Deconnexion</a></li>
+                <li><a href="{{ url_for('admin_suspendus') }}">Suspendus ({{ stats.suspendus }})</a></li>
+                <li><a href="{{ url_for('admin_refuses') }}">Refusés</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Déconnexion</a></li>
             </ul>
         </nav>
 
@@ -46,11 +53,15 @@
             </div>
             <div class="stat-card" style="border-left: 4px solid #28a745;">
                 <h3>{{ stats.approuves }}</h3>
-                <p>Approuves</p>
+                <p>Approuvés</p>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #ff9800;">
+                <h3>{{ stats.suspendus }}</h3>
+                <p>Suspendus</p>
             </div>
             <div class="stat-card" style="border-left: 4px solid #dc3545;">
                 <h3>{{ stats.refuses }}</h3>
-                <p>Refuses</p>
+                <p>Refusés</p>
             </div>
         </div>
 
@@ -62,7 +73,7 @@
                 <thead>
                     <tr>
                         <th>Photo</th>
-                        <th>Numero</th>
+                        <th>Numéro</th>
                         <th>Nom</th>
                         <th>Promotion</th>
                         <th>Date Demande</th>
@@ -106,13 +117,13 @@
         {% else %}
         <div style="background: #d4edda; padding: 30px; border-radius: 10px; text-align: center; margin-top: 30px;">
             <h3 style="color: #155724;">Aucune inscription en attente</h3>
-            <p style="color: #155724;">Toutes les demandes ont ete traitees.</p>
+            <p style="color: #155724;">Toutes les demandes ont été traitées.</p>
         </div>
         {% endif %}
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 ALUBILLES - Administration</p>
+        <p>&copy; 2025 ALUBILLES - Administration</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

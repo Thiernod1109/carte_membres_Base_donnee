@@ -24,6 +24,7 @@ def init_db():
             nom TEXT NOT NULL,
             prenom TEXT NOT NULL,
             date_naissance TEXT,
+            genre TEXT,
             promotion TEXT,
             programme TEXT,
             email TEXT,
@@ -112,7 +113,7 @@ def generate_member_number():
 
     return numero
 
-def add_membre(nom, prenom, date_naissance, promotion, programme, email, telephone, adresse, photo_path):
+def add_membre(nom, prenom, date_naissance, promotion, programme, genre, email, telephone, adresse, photo_path):
     """Ajouter un nouveau membre à la base de données (statut en_attente par défaut)"""
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -162,6 +163,50 @@ def refuser_membre(membre_id, motif=''):
 
     conn.commit()
     conn.close()
+
+def suspendre_membre(membre_id, motif=''):
+    """Suspendre un membre (généralement pour défaut de paiement)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    date_suspension = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('''
+        UPDATE membres
+        SET statut = 'suspendu', date_validation = ?, motif_refus = ?
+        WHERE id = ?
+    ''', (date_suspension, motif, membre_id))
+
+    conn.commit()
+    conn.close()
+
+def reactiver_membre(membre_id):
+    """Réactiver un membre suspendu"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        UPDATE membres
+        SET statut = 'approuve', motif_refus = NULL
+        WHERE id = ?
+    ''', (membre_id,))
+
+    conn.commit()
+    conn.close()
+
+def get_membres_suspendus():
+    """Récupérer les membres suspendus"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT * FROM membres
+        WHERE statut = 'suspendu'
+        ORDER BY date_validation DESC
+    ''')
+    membres = cursor.fetchall()
+
+    conn.close()
+    return membres
 
 def update_carte_path(membre_id, carte_path):
     """Mettre à jour le chemin de la carte de membre"""
@@ -292,6 +337,9 @@ def get_stats():
 
     cursor.execute('SELECT COUNT(*) FROM membres WHERE statut = "refuse"')
     stats['refuses'] = cursor.fetchone()[0]
+
+    cursor.execute('SELECT COUNT(*) FROM membres WHERE statut = "suspendu"')
+    stats['suspendus'] = cursor.fetchone()[0]
 
     conn.close()
     return stats
