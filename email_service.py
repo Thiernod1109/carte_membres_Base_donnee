@@ -64,7 +64,7 @@ def envoyer_email_inscription(membre_email, membre_nom, membre_prenom, numero_me
                 <hr style="border: 1px solid #ddd; margin-top: 30px;">
                 <p style="text-align: center; color: #999; font-size: 0.9em;">
                     ALUBILLES - Association des Anciens Élèves de BILLES<br>
-                    © 2024 Tous droits réservés
+                    © 2025 Tous droits réservés
                 </p>
             </div>
         </body>
@@ -134,7 +134,7 @@ def envoyer_email_approbation(membre_email, membre_nom, membre_prenom, numero_me
                 <hr style="border: 1px solid #ddd; margin-top: 30px;">
                 <p style="text-align: center; color: #999; font-size: 0.9em;">
                     ALUBILLES - Association des Anciens Élèves de BILLES<br>
-                    © 2024 Tous droits réservés
+                    © 2025 Tous droits réservés
                 </p>
             </div>
         </body>
@@ -188,7 +188,7 @@ def envoyer_email_refus(membre_email, membre_nom, membre_prenom, motif=''):
                 <hr style="border: 1px solid #ddd; margin-top: 30px;">
                 <p style="text-align: center; color: #999; font-size: 0.9em;">
                     ALUBILLES - Association des Anciens Élèves de BILLES<br>
-                    © 2024 Tous droits réservés
+                    © 2025 Tous droits réservés
                 </p>
             </div>
         </body>
@@ -255,7 +255,7 @@ def envoyer_email_suspension(membre_email, membre_nom, membre_prenom, motif=''):
                 <hr style="border: 1px solid #ddd; margin-top: 30px;">
                 <p style="text-align: center; color: #999; font-size: 0.9em;">
                     ALUBILLES - Association des Anciens Élèves de BILLES<br>
-                    © 2024 Tous droits réservés
+                    © 2025 Tous droits réservés
                 </p>
             </div>
         </body>
@@ -311,7 +311,7 @@ def envoyer_notification_admin(admin_email, membre_nom, membre_prenom, numero_me
                 <hr style="border: 1px solid #ddd; margin-top: 30px;">
                 <p style="text-align: center; color: #999; font-size: 0.9em;">
                     ALUBILLES - Système de gestion<br>
-                    © 2024 Tous droits réservés
+                    © 2025 Tous droits réservés
                 </p>
             </div>
         </body>
